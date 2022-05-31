@@ -6,8 +6,7 @@ use std::{
     fs::OpenOptions,
     io::{BufWriter, Read, Write},
     net::{SocketAddr, TcpStream, ToSocketAddrs},
-    ops::Index,
-    sync::mpsc::{Receiver, Sender},
+    sync::mpsc::Sender,
     time::{Duration, Instant},
 };
 
@@ -245,7 +244,7 @@ mod tests {
     fn test_basics() {
         let cont = read_hosts_content();
         println!("cont:{}", cont);
-        let (not_hosts, mut hosts) = group_host_file("zuozhu163.xyz", &cont);
+        let (_not_hosts, mut hosts) = group_host_file("zuozhu163.xyz", &cont);
         // println!("not_hosts: {:?}, hosts:{:?}", not_hosts, hosts);
 
         comment_all(&mut hosts);
@@ -258,7 +257,7 @@ mod tests {
 
         let mut black_list = HashSet::new();
         choose_one(&mut hosts, &mut black_list);
-        for h in &hosts {
+        for _h in &hosts {
             // println!("{}", h);
         }
         println!("aaaaa{:?}", get_current_inuse("zuozhu163.xyz"));
