@@ -44,7 +44,6 @@ fn choose_one(buf: &mut Vec<String>, black_list: &mut HashSet<String>) -> String
         let idx = thread_rng.gen_range(0..buf.len());
         let s = &buf[idx];
         let ip = s.clone();
-        println!("random hosts is:{}", s);
         if black_list.contains(s) {
             continue;
         } else {
@@ -137,9 +136,10 @@ fn watcher_processsor(send: Sender<Event>, host: String) {
                         counter += 1;
                         if counter >= 3 {
                             counter = 0;
+                            println!("多次尝试仍不能正常连接,尝试随机切换host对应的ip...");
                             let _ = send.send(Event::Default(ip));
                         } else {
-                            println!("Retrying!");
+                            println!("Host绑定对应ip出现超时情况,再次尝试, 尝试次数:{}!", counter);
                         }
                         std::thread::sleep(Duration::from_secs(1));
                         continue;
@@ -175,7 +175,7 @@ fn try_to_start_tcp_conn(ip: &str) -> (bool, u128) {
     match res {
         Ok(s) => {
             println!(
-                "Tcp connect {} success, cost:{}ms",
+                "Host 对应ip: {} 连接正常, 连接耗时:{}ms",
                 ip,
                 current.elapsed().as_millis()
             );
@@ -231,7 +231,7 @@ fn main() {
                 }
                 let ip = re_select(&mut hosts, &mut black_list);
                 flush(&not_hosts, &hosts);
-                println!("Host reselect ip is:{}", ip);
+                println!("重新选择的ip地址是:{}", ip);
             }
         }
     }
