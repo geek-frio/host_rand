@@ -99,10 +99,18 @@ fn group_host_file<'a>(host: &'a str, s: &'a String) -> (Vec<String>, Vec<String
 }
 
 fn flush(not_hosts: &Vec<String>, hosts: &Vec<String>) {
-    let file = OpenOptions::new()
-        .write(true)
-        .open("/etc/hosts")
-        .expect("打开/etc/hosts文件写入失败");
+    let file = if cfg!(target_os = "windows") {
+        OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open("C:\\Windows\\System32\\drivers\\etc\\hosts")
+            .expect("打开/etc/hosts文件写入失败")
+    } else {
+        OpenOptions::new()
+            .write(true)
+            .open("/etc/hosts")
+            .expect("打开/etc/hosts文件写入失败")
+    };
     let chain = not_hosts.into_iter().chain(hosts.into_iter());
     let mut buf_write = BufWriter::new(file);
     for h in chain {
@@ -113,13 +121,21 @@ fn flush(not_hosts: &Vec<String>, hosts: &Vec<String>) {
 }
 
 fn read_hosts_content() -> String {
-    let mut file = OpenOptions::new()
-        .read(true)
-        .open("/etc/hosts")
-        .expect("编辑 /etc/hosts文件 失败,没有权限！");
+    let mut file = if cfg!(target_os = "windows") {
+        OpenOptions::new()
+            .write(true)
+            .read(true)
+            .open("C:\\Windows\\System32\\drivers\\etc\\hosts")
+            .expect("打开/etc/hosts文件写入失败")
+    } else {
+        OpenOptions::new()
+            .write(true)
+            .open("/etc/hosts")
+            .expect("打开/etc/hosts文件写入失败")
+    };
     let mut buf = String::new();
     file.read_to_string(&mut buf)
-        .expect("/etc/hosts 文件内容读取失败！");
+        .expect("hosts 文件内容读取失败！");
     buf
 }
 
