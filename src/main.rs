@@ -114,6 +114,9 @@ fn flush(not_hosts: &Vec<String>, hosts: &Vec<String>) {
     let chain = not_hosts.into_iter().chain(hosts.into_iter());
     let mut buf_write = BufWriter::new(file);
     for h in chain {
+        if h.trim().is_empty() {
+            continue;
+        }
         let _ = buf_write.write_fmt(format_args!("{}\n", h));
     }
     let _ = buf_write.flush();
